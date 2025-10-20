@@ -1,4 +1,4 @@
-package com.lebaillyapp.composediceroller.ui.composition
+package com.lebaillyapp.composediceroller.model
 
 import androidx.compose.ui.geometry.Offset
 import kotlin.math.*
