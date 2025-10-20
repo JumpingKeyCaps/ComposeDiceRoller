@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -26,6 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import com.lebaillyapp.composediceroller.model.CubeConfig
 import com.lebaillyapp.composediceroller.model.DiceLayerConfig
 import com.lebaillyapp.composediceroller.model.LayerLockState
+import com.lebaillyapp.composediceroller.model.createUniformDice
+import com.lebaillyapp.composediceroller.model.createUniformGhost
 import com.lebaillyapp.composediceroller.ui.composition.InteractiveCube
 import com.lebaillyapp.composediceroller.ui.composition.InteractiveCubeV2
 import com.lebaillyapp.composediceroller.ui.composition.InteractiveCubeV3
@@ -51,6 +55,7 @@ import com.lebaillyapp.composediceroller.ui.containeur.CubeCavityContainerV1
 import com.lebaillyapp.composediceroller.ui.containeur.CubeCavityContainerV2
 import com.lebaillyapp.composediceroller.ui.containeur.CubeCavityContainerV3
 import com.lebaillyapp.composediceroller.ui.theme.ComposeDiceRollerTheme
+import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -136,7 +141,7 @@ fun TestSingleCube() {
                     DiceLayerConfig.createGhostParent(),
 
                     DiceLayerConfig(
-                        cubeConfig = CubeConfig.createDefaultDice(),
+                        cubeConfig = CubeConfig.createDefaultDice(false),
                         ratio = 0.90f,
                         lagFactor = 1f,
                         showPips = false,
@@ -144,7 +149,7 @@ fun TestSingleCube() {
                     ),
 
                     DiceLayerConfig(
-                        cubeConfig = CubeConfig.createDefaultDice(),
+                        cubeConfig = CubeConfig.createDefaultDice(false),
                         ratio = 0.5f,
                         lagFactor = 0.3f,
                         invertRotationX = false,
@@ -170,19 +175,40 @@ fun TestSingleCube() {
 
 @Composable
 fun TestCube() {
+    // État dynamique pour chaque dé (simule ton RNG)
+    var diceValue by remember {
+        mutableIntStateOf(0)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        DiceItem(1)
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Bouton pour simuler un roll (à retirer quand tu intègres ton RNG)
+            Button(
+                onClick = {
+                    diceValue = Random.nextInt(0, 7)
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(16.dp)
+            ) {
+                Text("Roll All Dice 🎲")
+            }
+
+            DiceItem(diceValue)
+        }
     }
 }
 
 @Composable
-fun DiceItem(id: Int) {
+fun DiceItem(value: Int) {
     Box(
-        modifier = Modifier.size(120.dp),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         NestedInteractiveDice(
@@ -190,25 +216,25 @@ fun DiceItem(id: Int) {
                 DiceLayerConfig.createGhostParent(),
 
                 DiceLayerConfig(
-                    cubeConfig = CubeConfig.createDefaultDice(),
+                    cubeConfig = if(value == 0) CubeConfig.createDefaultDice(false) else CubeConfig.createUniformGhost(value),
                     ratio = 0.90f,
                     lagFactor = 1f,
                     showPips = false,
-                    alpha = 0.5f
+                    alpha = 0.3f
                 ),
 
                 DiceLayerConfig(
-                    cubeConfig = CubeConfig.createDefaultDice(),
+                    cubeConfig = if(value == 0) CubeConfig.createDefaultDice(false) else CubeConfig.createUniformDice(value),
                     ratio = 0.75f,
-                    lagFactor = 1.0f,
+                    lagFactor = 0.5f,
                     invertRotationX = false,
                     showPips = true,
                     alpha = 1.0f
                 )
             ),
             size = 150f,
-            pipRadius = 0.15f,
-            pipPadding = 0.08f,
+            pipRadius = 0.13f,
+            pipPadding = 0.05f,
             layerLocks = listOf(
                 LayerLockState.unlocked(),
                 LayerLockState.unlocked(),
