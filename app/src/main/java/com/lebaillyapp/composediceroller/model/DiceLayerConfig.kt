@@ -34,7 +34,7 @@ data class DiceLayerConfig(
          */
         fun createDefault(): DiceLayerConfig {
             return DiceLayerConfig(
-                cubeConfig = CubeConfig.createDefaultDice(),
+                cubeConfig = CubeConfig.createDefaultDice(false),
                 ratio = 1.0f,
                 lagFactor = 1.0f,
                 showPips = true,
@@ -47,12 +47,12 @@ data class DiceLayerConfig(
          */
         fun createGhostParent(): DiceLayerConfig {
             return DiceLayerConfig(
-                cubeConfig = CubeConfig.createDefaultDice(),
+                cubeConfig = CubeConfig.createDefaultDice(true),
                 ratio = 1.0f,
                 lagFactor = 1.0f,
                 showPips = false,
                 showEdges = false,
-                alpha = 0.1f
+                alpha = 0.05f
             )
         }
 
@@ -62,7 +62,7 @@ data class DiceLayerConfig(
         fun createInnerWithLag(
             ratio: Float = 0.7f,
             lagFactor: Float = 0.5f,
-            cubeConfig: CubeConfig = CubeConfig.createDefaultDice()
+            cubeConfig: CubeConfig = CubeConfig.createDefaultDice(false)
         ): DiceLayerConfig {
             return DiceLayerConfig(
                 cubeConfig = cubeConfig,
