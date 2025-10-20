@@ -7,7 +7,7 @@ data class CubeConfig(
     val faces: List<FaceConfig>
 ) {
     companion object {
-        fun createDefaultDice(): CubeConfig {
+        fun createDefaultDice(isRootLayer: Boolean): CubeConfig {
             val s = 1f
             val vertices = listOf(
                 Vec3(-s, -s, -s), Vec3(s, -s, -s),
@@ -16,11 +16,22 @@ data class CubeConfig(
                 Vec3(s, s, s), Vec3(-s, s, s)
             )
 
-            val colors = listOf(
-                Color(0xFFE74C3C), Color(0xFF3498DB),
-                Color(0xFF2ECC71), Color(0xFFF39C12),
-                Color(0xFF9B59B6), Color(0xFF1ABC9C)
-            )
+            var colors = emptyList<Color>()
+
+            if(isRootLayer){
+                colors = listOf(
+                    Color(0xFFFFFFFF), Color(0xFFFFFFFF),
+                    Color(0xFFFFFFFF), Color(0xFFFFFFFF),
+                    Color(0xFFFFFFFF), Color(0xFFFFFFFF)
+                )
+            }else{
+                colors = listOf(
+                    Color(0xFFE74C3C), Color(0xFF3498DB),
+                    Color(0xFF2ECC71), Color(0xFFF39C12),
+                    Color(0xFF9B59B6), Color(0xFF1ABC9C)
+                )
+            }
+
 
             fun pip(x: Float, y: Float) = Pip(x, y)
 
