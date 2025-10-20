@@ -27,7 +27,7 @@ fun InteractiveDiceComposable(
     pipColor: Color = Color.White,
     showWires: Boolean = false,
     faceColors: List<Color>? = null,
-    cubeConfig: CubeConfig = CubeConfig.createDefaultDice()
+    cubeConfig: CubeConfig = CubeConfig.createDefaultDice(false)
 ) {
     var rotationX by remember { mutableStateOf(0f) }
     var rotationY by remember { mutableStateOf(0f) }
