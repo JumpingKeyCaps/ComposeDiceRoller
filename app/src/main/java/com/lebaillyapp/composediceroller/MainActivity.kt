@@ -4,13 +4,52 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.lebaillyapp.composediceroller.model.CubeConfig
+import com.lebaillyapp.composediceroller.model.DiceLayerConfig
+import com.lebaillyapp.composediceroller.model.LayerLockState
+import com.lebaillyapp.composediceroller.ui.composition.InteractiveCube
+import com.lebaillyapp.composediceroller.ui.composition.InteractiveCubeV2
+import com.lebaillyapp.composediceroller.ui.composition.InteractiveCubeV3
+import com.lebaillyapp.composediceroller.ui.composition.InteractiveCubeV4
+import com.lebaillyapp.composediceroller.ui.composition.InteractiveCubeWith3Nested
+import com.lebaillyapp.composediceroller.ui.composition.InteractiveCubeWith3NestedCrystal
+import com.lebaillyapp.composediceroller.ui.composition.InteractiveCubeWith3NestedLag
+import com.lebaillyapp.composediceroller.ui.composition.InteractiveCubeWith3NestedShiny
+import com.lebaillyapp.composediceroller.ui.composition.InteractiveCubeWithInner
+import com.lebaillyapp.composediceroller.ui.composition.InteractiveDiceComposable
+import com.lebaillyapp.composediceroller.ui.composition.NestedInteractiveDice
+import com.lebaillyapp.composediceroller.ui.containeur.CubeCavityContainerV1
+import com.lebaillyapp.composediceroller.ui.containeur.CubeCavityContainerV2
+import com.lebaillyapp.composediceroller.ui.containeur.CubeCavityContainerV3
 import com.lebaillyapp.composediceroller.ui.theme.ComposeDiceRollerTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +58,162 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ComposeDiceRollerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+
+                Scaffold (
+                    Modifier.fillMaxSize()
+                ){
+                    Surface(
+                        modifier = Modifier.fillMaxSize().padding(it),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                       // CubeGallery()
+                           TestCube()
+                       // TestSingleCube()
+                    }
                 }
             }
         }
     }
 }
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
+fun CubeGallery() {
+    val cubesizedemo = 550f
+    val cubes = listOf<@Composable (Modifier) -> Unit>(
+        { InteractiveCube(size = cubesizedemo) },
+        { InteractiveCubeV2(size = cubesizedemo) },
+        { InteractiveCubeV4(size = cubesizedemo) },
+        { InteractiveCubeWithInner(size = cubesizedemo) },
+        { InteractiveCubeWith3Nested(size = cubesizedemo) },
+        { InteractiveCubeWith3NestedLag(size = cubesizedemo) },
+        { InteractiveCubeWith3NestedShiny(size = cubesizedemo) },
+        { InteractiveCubeWith3NestedCrystal(size = cubesizedemo) },
+        { CubeCavityContainerV2(size = cubesizedemo) },
+        { CubeCavityContainerV3(size = cubesizedemo) },
+        { InteractiveDiceComposable(size = 120f) }
     )
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(1),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(0.dp),
+    ) {
+        items(cubes.size) { index ->
+            Box(
+                modifier = Modifier
+                    .padding(start = 28.dp, end = 28.dp, top = 14.dp, bottom = 14.dp)
+                    .aspectRatio(1f)
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
+
+            ) {
+                cubes[index].invoke(Modifier.fillMaxSize())
+            }
+        }
+    }
 }
 
-@Preview(showBackground = true)
+
 @Composable
-fun GreetingPreview() {
-    ComposeDiceRollerTheme {
-        Greeting("Android")
+fun TestSingleCube() {
+
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 0.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            NestedInteractiveDice(
+                layers = listOf(
+                    DiceLayerConfig.createGhostParent(),
+
+                    DiceLayerConfig(
+                        cubeConfig = CubeConfig.createDefaultDice(),
+                        ratio = 0.90f,
+                        lagFactor = 1f,
+                        showPips = false,
+                        alpha = 0.15f
+                    ),
+
+                    DiceLayerConfig(
+                        cubeConfig = CubeConfig.createDefaultDice(),
+                        ratio = 0.5f,
+                        lagFactor = 0.3f,
+                        invertRotationX = false,
+                        showPips = true,
+                        alpha = 0.95f
+                    )
+                ),
+                size = 300f,
+                pipRadius = 0.10f,
+                pipPadding = 0.05f,
+                layerLocks = listOf(
+                    LayerLockState.unlocked(),  // Cube 0 : libre
+                    LayerLockState.unlocked() ,
+                    LayerLockState.unlocked()   // Cube 2 : libre
+                )
+            )
+        }
+
+
+    }
+}
+
+
+@Composable
+fun TestCube() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
+        DiceItem(1)
+    }
+}
+
+@Composable
+fun DiceItem(id: Int) {
+    Box(
+        modifier = Modifier.size(120.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        NestedInteractiveDice(
+            layers = listOf(
+                DiceLayerConfig.createGhostParent(),
+
+                DiceLayerConfig(
+                    cubeConfig = CubeConfig.createDefaultDice(),
+                    ratio = 0.90f,
+                    lagFactor = 1f,
+                    showPips = false,
+                    alpha = 0.5f
+                ),
+
+                DiceLayerConfig(
+                    cubeConfig = CubeConfig.createDefaultDice(),
+                    ratio = 0.75f,
+                    lagFactor = 1.0f,
+                    invertRotationX = false,
+                    showPips = true,
+                    alpha = 1.0f
+                )
+            ),
+            size = 150f,
+            pipRadius = 0.15f,
+            pipPadding = 0.08f,
+            layerLocks = listOf(
+                LayerLockState.unlocked(),
+                LayerLockState.unlocked(),
+                LayerLockState.unlocked()
+            )
+        )
     }
 }
