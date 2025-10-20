@@ -14,7 +14,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.lebaillyapp.composediceroller.model.DiceLayerConfig
 import com.lebaillyapp.composediceroller.model.LayerLockState
-import com.lebaillyapp.composediceroller.ui.utils.RotationState
+import com.lebaillyapp.composediceroller.model.RotationState
+import com.lebaillyapp.composediceroller.model.Vec3
 import kotlin.math.*
 
 /**

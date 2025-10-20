@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import com.lebaillyapp.composediceroller.model.Vec3
+import com.lebaillyapp.composediceroller.model.normalizeOrZero
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
@@ -153,7 +155,12 @@ fun InteractiveCubeWith3NestedCrystal(
                     val fresnel = 0.2f + 0.8f * (1f - dotView)
 
                     val reflectDir = (pointerPos - center).normalizeOrZero()
-                    val reflectBrightness = 0.5f + 0.5f * max(0f, normal.dot(Vec3(reflectDir.x, -reflectDir.y, -0.5f).normalize()))
+                    val reflectBrightness = 0.5f + 0.5f * max(0f, normal.dot(
+                        Vec3(
+                            reflectDir.x,
+                            -reflectDir.y,
+                            -0.5f
+                        ).normalize()))
                     val brightness = (normal.dot(light).coerceIn(0f,1f) * 0.6f + 0.4f) * reflectBrightness * fresnel
 
                     val shadedColor = color.copy(

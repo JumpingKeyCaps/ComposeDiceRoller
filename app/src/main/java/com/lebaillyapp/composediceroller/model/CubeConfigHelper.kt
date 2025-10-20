@@ -1,7 +1,6 @@
 package com.lebaillyapp.composediceroller.model
 
 import androidx.compose.ui.graphics.Color
-import com.lebaillyapp.composediceroller.ui.composition.Vec3
 
 /**
  * Crée un cube où toutes les faces affichent la même valeur de dé (1-6).
