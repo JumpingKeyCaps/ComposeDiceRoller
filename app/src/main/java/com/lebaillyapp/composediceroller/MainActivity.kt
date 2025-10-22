@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -26,6 +28,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lebaillyapp.composediceroller.model.CubeConfig
+import com.lebaillyapp.composediceroller.model.DiceAnimationConfig
 import com.lebaillyapp.composediceroller.model.DiceLayerConfig
 import com.lebaillyapp.composediceroller.model.LayerLockState
 import com.lebaillyapp.composediceroller.model.createUniformDice
@@ -175,10 +179,8 @@ fun TestSingleCube() {
 
 @Composable
 fun TestCube() {
-    // État dynamique pour chaque dé (simule ton RNG)
-    var diceValue by remember {
-        mutableIntStateOf(0)
-    }
+    var diceAnimConfig by remember { mutableStateOf(DiceAnimationConfig.idle(0)) }
+    var diceValue by remember { mutableStateOf(0) }
 
     Box(
         modifier = Modifier
@@ -186,27 +188,46 @@ fun TestCube() {
             .background(MaterialTheme.colorScheme.surface)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Bouton pour simuler un roll (à retirer quand tu intègres ton RNG)
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Bouton pour lancer le dé
             Button(
                 onClick = {
-                    diceValue = Random.nextInt(0, 7)
+                    val newValue = Random.nextInt(1, 7)
+                    diceValue = newValue
+                    diceAnimConfig = DiceAnimationConfig.rollTo(
+                        targetValue = newValue,
+                        rotationsX = 40f,      // 40 tours sur X
+                        rotationsY = 40f,      // 40 tours sur Y
+                        rollingDuration = 5000L,  // 5 secondes de rolling
+                        landingDuration = 3000L   // 3 seconde de landing
+                    )
                 },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(16.dp)
+                modifier = Modifier.padding(16.dp)
             ) {
-                Text("Roll All Dice 🎲")
+                Text("Roll Dice! (Currently: ${if (diceValue == 0) "Classic" else diceValue})")
             }
 
-            DiceItem(diceValue)
+            // Le dé
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                DiceItem(
+                    value = diceValue,
+                    animationConfig = diceAnimConfig
+                )
+            }
         }
     }
 }
 
 @Composable
-fun DiceItem(value: Int) {
+fun DiceItemOLD(value: Int) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -232,6 +253,78 @@ fun DiceItem(value: Int) {
                     alpha = 1.0f
                 )
             ),
+            size = 150f,
+            pipRadius = 0.13f,
+            pipPadding = 0.05f,
+            layerLocks = listOf(
+                LayerLockState.unlocked(),
+                LayerLockState.unlocked(),
+                LayerLockState.unlocked()
+            )
+        )
+    }
+}
+
+
+
+
+@Composable
+fun DiceItem(
+    value: Int,
+    animationConfig: DiceAnimationConfig = DiceAnimationConfig.idle(0)
+) {
+    // État local synchronisé
+    var currentAnimConfig by remember { mutableStateOf(animationConfig) }
+    var currentValue by remember { mutableStateOf(value) }
+
+    // Sync avec les props externes
+    LaunchedEffect(animationConfig) {
+        currentAnimConfig = animationConfig
+    }
+
+    // Mémorisation des layers pour éviter les recompositions infinies
+    val layers = remember(currentValue) {
+        listOf(
+            DiceLayerConfig.createGhostParent(),
+
+            DiceLayerConfig(
+                cubeConfig = if (currentValue == 0)
+                    CubeConfig.createDefaultDice(false)
+                else
+                    CubeConfig.createUniformGhost(currentValue),
+                ratio = 0.90f,
+                lagFactor = 1f,
+                showPips = false,
+                alpha = 0.3f
+            ),
+
+            DiceLayerConfig(
+                cubeConfig = if (currentValue == 0)
+                    CubeConfig.createDefaultDice(false)
+                else
+                    CubeConfig.createUniformDice(currentValue),
+                ratio = 0.75f,
+                lagFactor = 0.5f,
+                invertRotationX = false,
+                showPips = true,
+                alpha = 1.0f
+            )
+        )
+    }
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        NestedInteractiveDice(
+            animationConfig = currentAnimConfig,
+            onAnimationStateChange = { newConfig ->
+                currentAnimConfig = newConfig
+            },
+            onValueChange = { newValue ->
+                currentValue = newValue
+            },
+            layers = layers,
             size = 150f,
             pipRadius = 0.13f,
             pipPadding = 0.05f,
