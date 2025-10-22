@@ -70,7 +70,7 @@ class DiceAnimationController {
         return when (state) {
             DiceState.IDLE -> baseDamping      // Conservation normale en idle
             DiceState.ROLLING -> 0.99f         // Très peu de perte pour garder la vitesse
-            DiceState.LANDING -> 0.90f         // Fort freinage en landing
+            DiceState.LANDING -> 0.99f         // Ralentissement progressif naturel
         }
     }
 
@@ -84,15 +84,5 @@ class DiceAnimationController {
         return state == DiceState.ROLLING || state == DiceState.LANDING
     }
 
-    /**
-     * Calcule la vitesse de rotation en mode LANDING
-     * Commence rapide, ralentit progressivement
-     *
-     * @param landingProgress Progression dans la phase LANDING (0.0 à 1.0)
-     * @return Facteur de vitesse (1.0 = vitesse normale, 0.0 = arrêt)
-     */
-    fun getLandingSpeedFactor(landingProgress: Float): Float {
-        // Courbe de ralentissement exponentielle
-        return (1f - landingProgress * landingProgress).coerceIn(0.05f, 1f)
-    }
+
 }
