@@ -57,7 +57,7 @@ import kotlin.random.Random
 fun NestedInteractiveDice(
     modifier: Modifier = Modifier,
     layers: List<DiceLayerConfig>,
-    animationConfig: DiceAnimationConfig = DiceAnimationConfig.idle(),
+    animationConfig: DiceAnimationConfig = DiceAnimationConfig.idle(0),
     layerLocks: List<LayerLockState> = emptyList(),
     size: Float = 300f,
     scaleFactor: Float = 0.25f,
@@ -105,20 +105,26 @@ fun NestedInteractiveDice(
     val cubeScale = remember { Animatable(1f) }
 
     // === Synchronisation avec l'état externe ===
-    LaunchedEffect(animationConfig.currentState, animationConfig.targetValue) {
+    LaunchedEffect(animationConfig.currentState, animationConfig.targetValue,
+        animationConfig.rollingRotationsX, animationConfig.rollingRotationsY,
+        animationConfig.rollingDuration, animationConfig.landingDuration) {
         internalAnimState = animationConfig.currentState
         internalTargetValue = animationConfig.targetValue
+        internalRotationsX = animationConfig.rollingRotationsX
+        internalRotationsY = animationConfig.rollingRotationsY
+        internalRollingDuration = animationConfig.rollingDuration
+        internalLandingDuration = animationConfig.landingDuration
         phaseStartTime = System.currentTimeMillis()
     }
 
     // === Génération des velocités pour ROLLING basée sur le nombre de tours ===
-    LaunchedEffect(internalAnimState, animationConfig.rollingRotationsX, animationConfig.rollingRotationsY) {
+    LaunchedEffect(internalAnimState, internalRotationsX, internalRotationsY) {
         if (internalAnimState == DiceState.ROLLING) {
             // Calcule les velocités pour atteindre exactement le nombre de tours voulu
             val (velX, velY) = animController.calculateVelocitiesForRotations(
-                rotationsX = animationConfig.rollingRotationsX,
-                rotationsY = animationConfig.rollingRotationsY,
-                durationMs = animationConfig.rollingDuration
+                rotationsX = internalRotationsX,
+                rotationsY = internalRotationsY,
+                durationMs = internalRollingDuration
             )
 
             // Direction aléatoire
@@ -139,7 +145,10 @@ fun NestedInteractiveDice(
                 currentDisplayValue = 0
                 onValueChange?.invoke(0)
 
-                delay(animationConfig.rollingDuration)
+                delay(internalRollingDuration)
+
+                currentDisplayValue = internalTargetValue
+                onValueChange?.invoke(internalTargetValue)
 
                 // Transition vers LANDING
                 internalAnimState = DiceState.LANDING
@@ -152,10 +161,8 @@ fun NestedInteractiveDice(
             }
 
             DiceState.LANDING -> {
-                currentDisplayValue = internalTargetValue
-                onValueChange?.invoke(internalTargetValue)
-
-                delay(animationConfig.landingDuration)
+                // La valeur est déjà changée, on ralentit juste
+                delay(internalLandingDuration)
 
                 // Transition vers IDLE
                 internalAnimState = DiceState.IDLE
@@ -247,17 +254,6 @@ fun NestedInteractiveDice(
                 )
                 targetRotationX = newRotX
                 targetRotationY = newRotY
-            }
-
-            // === Ralentissement progressif en LANDING ===
-            if (internalAnimState == DiceState.LANDING) {
-                val elapsed = System.currentTimeMillis() - phaseStartTime
-                val progress = (elapsed.toFloat() / animationConfig.landingDuration).coerceIn(0f, 1f)
-                val speedFactor = animController.getLandingSpeedFactor(progress)
-
-                // Continue de tourner mais ralentit
-                velocityX *= speedFactor
-                velocityY *= speedFactor
             }
 
             // === Inertie avec damping adaptatif ===
