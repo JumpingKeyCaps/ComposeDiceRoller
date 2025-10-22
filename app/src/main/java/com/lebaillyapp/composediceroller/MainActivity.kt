@@ -200,9 +200,9 @@ fun TestCube() {
                     diceValue = newValue
                     diceAnimConfig = DiceAnimationConfig.rollTo(
                         targetValue = newValue,
-                        rotationsX = 40f,      // 40 tours sur X
-                        rotationsY = 40f,      // 40 tours sur Y
-                        rollingDuration = 5000L,  // 5 secondes de rolling
+                        rotationsX = 30f,      // 40 tours sur X
+                        rotationsY = 30f,      // 40 tours sur Y
+                        rollingDuration = 4000L,  // 5 secondes de rolling
                         landingDuration = 3000L   // 3 seconde de landing
                     )
                 },
