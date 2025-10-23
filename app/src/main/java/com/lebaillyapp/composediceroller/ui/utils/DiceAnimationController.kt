@@ -6,83 +6,70 @@ import kotlin.random.Random
 
 /**
  * Contrôleur d'animation pour un dé.
- * Gère la logique d'animation et les calculs de rotation selon l'état.
+ * Version simplifiée sans état LANDING.
+ * Gère la logique d'animation fluide et les rotations continues.
  */
 class DiceAnimationController {
 
     /**
-     * Applique une rotation automatique douce en mode IDLE
-     *
-     * @param currentRotX Rotation X actuelle
-     * @param currentRotY Rotation Y actuelle
-     * @param deltaTime Temps écoulé depuis la dernière frame (pour consistance)
-     * @return Pair(newRotX, newRotY)
+     * Applique une rotation douce en mode IDLE (léger flottement constant).
      */
     fun applyIdleRotation(
         currentRotX: Float,
         currentRotY: Float,
-        deltaTime: Float = 0.016f  // ~60fps
+        deltaTime: Float = 0.016f
     ): Pair<Float, Float> {
-        // Rotation douce constante
         val idleSpeedX = 0.3f * deltaTime
         val idleSpeedY = 0.5f * deltaTime
-
         return (currentRotX + idleSpeedX) to (currentRotY + idleSpeedY)
     }
 
     /**
-     * Calcule les velocités pour atteindre un nombre de rotations spécifique
-     * pendant une durée donnée
-     *
-     * @param rotationsX Nombre de tours complets sur l'axe X
-     * @param rotationsY Nombre de tours complets sur l'axe Y
-     * @param durationMs Durée en millisecondes
-     * @return Pair(velocityX, velocityY) - velocités constantes pour atteindre le nombre de tours
+     * Calcule les vitesses nécessaires pour effectuer un nombre de rotations
+     * complet sur chaque axe pendant la durée donnée.
      */
     fun calculateVelocitiesForRotations(
         rotationsX: Float,
         rotationsY: Float,
         durationMs: Long
     ): Pair<Float, Float> {
-        // 1 tour complet = 2π radians
         val targetRadiansX = rotationsX * 2f * PI.toFloat()
         val targetRadiansY = rotationsY * 2f * PI.toFloat()
 
-        // Durée en secondes (approximation à 60fps)
-        val durationSeconds = durationMs / 1000f
-        val framesApprox = durationSeconds * 60f
-
-        // Velocity nécessaire par frame pour atteindre la rotation totale
-        val velocityX = targetRadiansX / framesApprox
-        val velocityY = targetRadiansY / framesApprox
+        val frames = (durationMs / 1000f) * 60f
+        val velocityX = targetRadiansX / frames
+        val velocityY = targetRadiansY / frames
 
         return velocityX to velocityY
     }
 
     /**
-     * Calcule le facteur de damping selon l'état
+     * Calcule un damping progressif selon la progression du roll.
+     * Exemple : plus on approche de la fin du roll, plus on ralentit.
      *
-     * @param state État actuel
-     * @param baseDamping Damping de base (défaut 0.99)
-     * @return Damping ajusté
+     * @param progress Avancement de 0f à 1f dans le roll
      */
-    fun getDampingForState(state: DiceState, baseDamping: Float = 0.99f): Float {
-        return when (state) {
-            DiceState.IDLE -> baseDamping      // Conservation normale en idle
-            DiceState.ROLLING -> 0.99f         // Très peu de perte pour garder la vitesse
-            DiceState.LANDING -> 0.99f         // Ralentissement progressif naturel
-        }
+    fun getRollingDamping(progress: Float): Float {
+        // entre 0.99 (début) et 0.90 (fin)
+        return 0.99f - (0.09f * progress.coerceIn(0f, 1f))
     }
 
     /**
-     * Détermine si l'interaction utilisateur doit être désactivée
-     *
-     * @param state État actuel
-     * @return true si le drag doit être bloqué
+     * Détermine si l'interaction utilisateur doit être bloquée.
+     * En rolling, toujours bloqué. En idle, libre.
      */
     fun shouldDisableInteraction(state: DiceState): Boolean {
-        return state == DiceState.ROLLING || state == DiceState.LANDING
+        return state == DiceState.ROLLING
     }
 
-
+    /**
+     * Calcule si on doit appliquer la valeur cible du dé.
+     * Si le roll a dépassé 50% du nombre total de tours, on fixe la face.
+     *
+     * @param progress Avancement du roll (0f..1f)
+     * @return true si la valeur finale doit être appliquée
+     */
+    fun shouldApplyTargetValue(progress: Float): Boolean {
+        return progress >= 0.5f
+    }
 }
