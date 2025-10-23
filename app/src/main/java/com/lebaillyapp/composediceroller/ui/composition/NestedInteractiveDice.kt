@@ -81,109 +81,136 @@ fun NestedInteractiveDice(
 
     val rotationStates = remember { List(layers.size) { RotationState() } }
 
-    // === Controller d'animation ===
     val animController = remember { DiceAnimationController() }
     var internalAnimState by remember { mutableStateOf(animationConfig.currentState) }
     var internalTargetValue by remember { mutableStateOf(animationConfig.targetValue) }
     var internalRotationsX by remember { mutableStateOf(animationConfig.rollingRotationsX) }
     var internalRotationsY by remember { mutableStateOf(animationConfig.rollingRotationsY) }
     var internalRollingDuration by remember { mutableStateOf(animationConfig.rollingDuration) }
-    var internalLandingDuration by remember { mutableStateOf(animationConfig.landingDuration) }
     var currentDisplayValue by remember { mutableStateOf(animationConfig.targetValue) }
+
     val coroutineScope = rememberCoroutineScope()
-
-    // Timestamp pour gérer les durées des phases
     var phaseStartTime by remember { mutableStateOf(0L) }
-
-    // Flag pour savoir si l'user est en train de drag (coupe l'auto-rotation IDLE)
     var isUserDragging by remember { mutableStateOf(false) }
+    var rollingProgress by remember { mutableStateOf(0f) }
 
     fun applyInversion(value: Float, invert: Boolean): Float =
         if (invert) -value else value
 
-    // === Animation du zoom central ===
     val cubeScale = remember { Animatable(1f) }
 
-    // === Synchronisation avec l'état externe ===
-    LaunchedEffect(animationConfig.currentState, animationConfig.targetValue,
-        animationConfig.rollingRotationsX, animationConfig.rollingRotationsY,
-        animationConfig.rollingDuration, animationConfig.landingDuration) {
+    // === Synchronisation avec les configs externes ===
+    LaunchedEffect(
+        animationConfig.currentState,
+        animationConfig.targetValue,
+        animationConfig.rollingRotationsX,
+        animationConfig.rollingRotationsY,
+        animationConfig.rollingDuration
+    ) {
         internalAnimState = animationConfig.currentState
         internalTargetValue = animationConfig.targetValue
         internalRotationsX = animationConfig.rollingRotationsX
         internalRotationsY = animationConfig.rollingRotationsY
         internalRollingDuration = animationConfig.rollingDuration
-        internalLandingDuration = animationConfig.landingDuration
         phaseStartTime = System.currentTimeMillis()
     }
 
-    // === Génération des velocités pour ROLLING basée sur le nombre de tours ===
+    // === Calcul des vitesses initiales pour le roll ===
     LaunchedEffect(internalAnimState, internalRotationsX, internalRotationsY) {
         if (internalAnimState == DiceState.ROLLING) {
-            // Calcule les velocités pour atteindre exactement le nombre de tours voulu
             val (velX, velY) = animController.calculateVelocitiesForRotations(
                 rotationsX = internalRotationsX,
                 rotationsY = internalRotationsY,
                 durationMs = internalRollingDuration
             )
 
-            // Direction aléatoire
             val dirX = if (Random.nextBoolean()) 1f else -1f
             val dirY = if (Random.nextBoolean()) 1f else -1f
 
             velocityX = velX * dirX
             velocityY = velY * dirY
-
-            // Les velocités restent constantes pendant tout le rolling
         }
     }
 
-    // === Gestion des transitions automatiques d'état ===
+    // === Transition automatique entre les états ===
+    val bounceDuration = 500 // durée totale en ms
+    val overshoot = 1.2f      // combien le cube dépasse avant de revenir à 1f
+    val targetUnderScale = 0.7f
+    val invertRotationX = true   // mettre true pour inverser l’axe X
+    val invertRotationY = true   // mettre true pour inverser l’axe Y
+
     LaunchedEffect(internalAnimState, internalTargetValue) {
-        when (internalAnimState) {
-            DiceState.ROLLING -> {
-                currentDisplayValue = 0
-                onValueChange?.invoke(0)
+        if (internalAnimState == DiceState.ROLLING) {
+            currentDisplayValue = 0
+            onValueChange?.invoke(0)
 
-                delay(internalRollingDuration)
+            val totalDuration = internalRollingDuration
+            val (velX, velY) = animController.calculateVelocitiesForRotations(
+                rotationsX = internalRotationsX,
+                rotationsY = internalRotationsY,
+                durationMs = totalDuration
+            )
 
-                currentDisplayValue = internalTargetValue
-                onValueChange?.invoke(internalTargetValue)
+            val dirX = if (Random.nextBoolean()) 1f else -1f
+            val dirY = if (Random.nextBoolean()) 1f else -1f
+            velocityX = velX * dirX * if (invertRotationX) -1f else 1f
+            velocityY = velY * dirY * if (invertRotationY) -1f else 1f
 
-                // Transition vers LANDING
-                internalAnimState = DiceState.LANDING
-                onAnimationStateChange?.invoke(
-                    animationConfig.copy(
-                        currentState = DiceState.LANDING,
-                        targetValue = internalTargetValue
-                    )
-                )
-            }
+            val startTime = System.currentTimeMillis()
+            var valueSet = false
 
-            DiceState.LANDING -> {
-                // La valeur est déjà changée, on ralentit juste
-                delay(internalLandingDuration)
+            while (System.currentTimeMillis() - startTime < totalDuration) {
+                val elapsed = System.currentTimeMillis() - startTime
+                val progress = (elapsed.toFloat() / totalDuration).coerceIn(0f, 1f)
 
-                // Transition vers IDLE
-                internalAnimState = DiceState.IDLE
-                onAnimationStateChange?.invoke(
-                    animationConfig.copy(
-                        currentState = DiceState.IDLE,
-                        targetValue = internalTargetValue
-                    )
-                )
-            }
+                val effectiveDamping = animController.getRollingDamping(progress)
+                velocityX *= effectiveDamping
+                velocityY *= effectiveDamping
+                targetRotationX += velocityY
+                targetRotationY += velocityX
 
-            DiceState.IDLE -> {
-                if (currentDisplayValue != internalTargetValue) {
+                if (!valueSet && progress >= 0.2f) {
                     currentDisplayValue = internalTargetValue
                     onValueChange?.invoke(internalTargetValue)
+                    valueSet = true
+
+                    // === Bounce du cube ===
+                    cubeScale.animateTo(
+                        targetValue = overshoot,
+                        animationSpec = tween(durationMillis = bounceDuration / 2)
+                    )
+                    cubeScale.animateTo(
+                        targetValue = 1f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMedium
+                        )
+                    )
+
+                    // Fin immédiate du roll
+                    break
                 }
+
+                if (!valueSet) cubeScale.snapTo(targetUnderScale)
+
+                delay(16)
             }
+
+            // Assure que le scale est bien revenu à 1f (sécurité)
+            cubeScale.snapTo(1f)
+
+            internalAnimState = DiceState.IDLE
+            onAnimationStateChange?.invoke(
+                animationConfig.copy(
+                    currentState = DiceState.IDLE,
+                    targetValue = internalTargetValue
+                )
+            )
         }
     }
 
-    // === Désactivation du drag selon l'état ===
+
+    // === Interaction lock selon l’état ===
     val interactionEnabled = !animController.shouldDisableInteraction(internalAnimState)
 
     Box(
@@ -193,16 +220,13 @@ fun NestedInteractiveDice(
                 if (interactionEnabled) {
                     detectDragGestures(
                         onDragStart = {
-                            isUserDragging = true  // Coupe l'auto-rotation IDLE
+                            isUserDragging = true
                             velocityX = 0f
                             velocityY = 0f
                             coroutineScope.launch {
                                 cubeScale.animateTo(
                                     targetValue = 0.7f,
-                                    animationSpec = tween(
-                                        durationMillis = 120,
-                                        easing = LinearOutSlowInEasing
-                                    )
+                                    animationSpec = tween(120, easing = LinearOutSlowInEasing)
                                 )
                             }
                         },
@@ -213,7 +237,7 @@ fun NestedInteractiveDice(
                             velocityY = dragAmount.y * dragFactor
                         },
                         onDragEnd = {
-                            isUserDragging = false  // Reprend l'auto-rotation IDLE
+                            isUserDragging = false
                             coroutineScope.launch {
                                 cubeScale.animateTo(
                                     targetValue = 1f,
@@ -225,7 +249,7 @@ fun NestedInteractiveDice(
                             }
                         },
                         onDragCancel = {
-                            isUserDragging = false  // Reprend l'auto-rotation IDLE
+                            isUserDragging = false
                             coroutineScope.launch {
                                 cubeScale.animateTo(
                                     targetValue = 1f,
@@ -246,35 +270,39 @@ fun NestedInteractiveDice(
             val scale = min(this.size.width, this.size.height) * scaleFactor
             val light = Vec3(0.5f, 0.7f, -1f).normalize()
 
-            // === Auto-rotation en IDLE (si pas de drag) ===
+            // Auto-rotation douce en IDLE
             if (internalAnimState == DiceState.IDLE && !isUserDragging) {
                 val (newRotX, newRotY) = animController.applyIdleRotation(
-                    targetRotationX,
-                    targetRotationY
+                    targetRotationX, targetRotationY
                 )
                 targetRotationX = newRotX
                 targetRotationY = newRotY
             }
 
-            // === Inertie avec damping adaptatif ===
-            val effectiveDamping = animController.getDampingForState(internalAnimState, damping)
+            // Damping dynamique
+            val effectiveDamping = if (internalAnimState == DiceState.ROLLING)
+                animController.getRollingDamping(rollingProgress)
+            else
+                damping
+
             targetRotationX += velocityY
             targetRotationY += velocityX
             velocityX *= effectiveDamping
             velocityY *= effectiveDamping
 
-            // === Lock du parent ===
+            // Lock du parent
             if (wasParentInteractive.value && !isParentInteractive) {
                 parentFixedRotationX.value = targetRotationX
                 parentFixedRotationY.value = targetRotationY
             }
             wasParentInteractive.value = isParentInteractive
 
-            // === Mise à jour du lag ===
+            // Update lag pour chaque layer
             layers.forEachIndexed { index, layer ->
                 val lockState = layerLocks.getOrNull(index)
                 val isLocked = lockState?.isLocked == true
                 val interactive = layer.isInteractive && !isLocked
+
                 if (layer.isEnabled && interactive) {
                     val state = rotationStates[index]
                     state.rotX += (targetRotationX - state.rotX) * layer.lagFactor
@@ -282,7 +310,7 @@ fun NestedInteractiveDice(
                 }
             }
 
-            // === Dessin ===
+            // === Rendu du cube ===
             data class FaceWithLayer(
                 val face: FaceConfig,
                 val fv: List<Vec3>,
@@ -309,11 +337,8 @@ fun NestedInteractiveDice(
                 val rotX = applyInversion(baseRotX, layer.invertRotationX)
                 val rotY = applyInversion(baseRotY, layer.invertRotationY)
 
-                // Applique cubeScale uniquement sur la 2e couche (index 1)
                 val effectiveRatio = if (index == 2)
-                    layer.ratio * cubeScale.value
-                else
-                    layer.ratio
+                    layer.ratio * cubeScale.value else layer.ratio
 
                 val vertices = layer.cubeConfig.vertices.map { it * effectiveRatio }
                 val rotated = vertices.map { it.rotateX(rotX).rotateY(rotY) }
@@ -325,6 +350,7 @@ fun NestedInteractiveDice(
                 }
             }
 
+            // === Tri & dessin ===
             allFaces.sortedByDescending { it.avgZ }.forEach { (face, fv, _, layer) ->
                 val v1 = fv[1] - fv[0]
                 val v2 = fv[3] - fv[0]
