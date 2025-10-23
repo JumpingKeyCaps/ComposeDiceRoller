@@ -198,12 +198,12 @@ fun TestCube() {
                 onClick = {
                     val newValue = Random.nextInt(1, 7)
                     diceValue = newValue
+
                     diceAnimConfig = DiceAnimationConfig.rollTo(
                         targetValue = newValue,
-                        rotationsX = 30f,      // 40 tours sur X
-                        rotationsY = 30f,      // 40 tours sur Y
-                        rollingDuration = 4000L,  // 5 secondes de rolling
-                        landingDuration = 3000L   // 3 seconde de landing
+                        rotationsX = 20f,       // 30 tours sur X
+                        rotationsY = 20f,       // 30 tours sur Y
+                        rollingDuration = 5000L // 4 secondes de roll fluide
                     )
                 },
                 modifier = Modifier.padding(16.dp)
@@ -273,16 +273,13 @@ fun DiceItem(
     value: Int,
     animationConfig: DiceAnimationConfig = DiceAnimationConfig.idle(0)
 ) {
-    // État local synchronisé
     var currentAnimConfig by remember { mutableStateOf(animationConfig) }
     var currentValue by remember { mutableStateOf(value) }
 
-    // Sync avec les props externes
     LaunchedEffect(animationConfig) {
         currentAnimConfig = animationConfig
     }
 
-    // Mémorisation des layers pour éviter les recompositions infinies
     val layers = remember(currentValue) {
         listOf(
             DiceLayerConfig.createGhostParent(),
@@ -307,7 +304,7 @@ fun DiceItem(
                 lagFactor = 0.5f,
                 invertRotationX = false,
                 showPips = true,
-                alpha = 1.0f
+                alpha = 0.9f
             )
         )
     }
@@ -325,7 +322,7 @@ fun DiceItem(
                 currentValue = newValue
             },
             layers = layers,
-            size = 150f,
+            size = 110f,
             pipRadius = 0.13f,
             pipPadding = 0.05f,
             layerLocks = listOf(
