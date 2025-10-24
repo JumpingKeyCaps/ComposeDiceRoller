@@ -1,4 +1,4 @@
-package com.lebaillyapp.composediceroller.ui.containeur
+package com.lebaillyapp.composediceroller.ui.containeur.legacy
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -26,10 +26,10 @@ import kotlin.math.min
 
 
 @Composable
-fun CubeCavityContainerV3(
+fun CubeCavityContainerV2(
     modifier: Modifier = Modifier,
-    size: Float = 300f,
-    scaleFactor: Float = 0.25f,
+    size: Float = 500f, // MODIFIÉ
+    scaleFactor: Float = 0.3f, // AJOUTÉ
     damping: Float = 0.99f,
     dragFactor: Float = 0.004f,
 
@@ -38,68 +38,39 @@ fun CubeCavityContainerV3(
     isInner2Interactive: Boolean = true,
     isInner3Interactive: Boolean = true,
 
-    // === PARAMÈTRES : Activation/Désactivation des cubes ===
-    isParentEnabled: Boolean = true,
-    isInner1Enabled: Boolean = true,
-    isInner2Enabled: Boolean = true,
-    isInner3Enabled: Boolean = true,
-
-    // === PARAMÈTRES : Visibilité des arêtes ===
-    showParentEdges: Boolean = false,
-    showInner1Edges: Boolean = false,
-    showInner2Edges: Boolean = false,
-    showInner3Edges: Boolean = false,
-
-    // === PARAMÈTRES : Inversion de rotation ===
-    // Cube Parent (Cube 1)
-    parentInvertRotationX: Boolean = false,
-    parentInvertRotationY: Boolean = false,
-
-    // Cube 2 (Inner 1)
-    inner1InvertRotationX: Boolean = false,
-    inner1InvertRotationY: Boolean = false,
-
-    // Cube 3 (Inner 2)
-    inner2InvertRotationX: Boolean = false,
-    inner2InvertRotationY: Boolean = false,
-
-    // Cube 4 (Inner 3)
-    inner3InvertRotationX: Boolean = false,
-    inner3InvertRotationY: Boolean = false,
-
     // Cube Parent (Cube 1) - Palette : Bleu Marine Profond (Dark Sapphire)
     parentColors: List<Color> = listOf(
-        Color(0xFFFFFFFF), Color(0xFFE4E5E7), Color(0xFFAFB0B2),
-        Color(0xFFFFFFFF), Color(0xFFE4E5E7), Color(0xFFAFB0B2)
+        Color(0xFF0D1B2A), Color(0xFF1B263B), Color(0xFF0D1B2A),
+        Color(0xFF1B263B), Color(0xFF0D1B2A), Color(0xFF1B263B)
     ),
-    parentAlpha: Float = 0.02f,
+    parentAlpha: Float = 0.05f, // MODIFIÉ
 
     // Cube 2 (Inner 1)
-    innerRatio1: Float = 0.90f,
-    innerLagFactor1: Float = 0.7f,
+    innerRatio1: Float = 0.95f,
+    innerLagFactor1: Float = 1.0f,
     innerColors1: List<Color> = listOf(
-        Color(0xFFFFFFFF), Color(0xFFE4E5E7), Color(0xFFAFB0B2),
-        Color(0xFFFFFFFF), Color(0xFFE4E5E7), Color(0xFFAFB0B2)
+        Color(0xFF415A77), Color(0xFF415A77), Color(0xFF778DA9),
+        Color(0xFF778DA9), Color(0xFF415A77), Color(0xFF778DA9)
     ),
-    innerAlpha1: Float = 0.1f,
+    innerAlpha1: Float = 0.05f, // MODIFIÉ
 
     // Cube 3 (Inner 2)
-    innerRatio2: Float = 0.50f,
-    innerLagFactor2: Float = 0.1f,
+    innerRatio2: Float = 0.5f, // MODIFIÉ
+    innerLagFactor2: Float = 0.2f, // MODIFIÉ
     innerColors2: List<Color> = listOf(
         Color(0xFFE74C3C), Color(0xFF3498DB), Color(0xFF2ECC71),
         Color(0xFFF39C12), Color(0xFF9B59B6), Color(0xFF1ABC9C)
     ),
-    innerAlpha2: Float = 0.5f,
+    innerAlpha2: Float = 0.55f,
 
     // Cube 4 (Inner 3)
     innerRatio3: Float = 0.25f,
-    innerLagFactor3: Float = 0.05f,
+    innerLagFactor3: Float = 0.05f, // MODIFIÉ
     innerColors3: List<Color> = listOf(
         Color(0xFFF50057), Color(0xFF00B0FF), Color(0xFF00E676),
         Color(0xFFFF9100), Color(0xFF651FFF), Color(0xFF1DE9B6)
     ),
-    innerAlpha3: Float = 0.99f
+    innerAlpha3: Float = 0.95f
 ) {
     // Rotation cible globale (Source de Vérité) - TOUJOURS mise à jour par le Drag
     var targetRotationX by remember { mutableStateOf(0f) }
@@ -107,7 +78,7 @@ fun CubeCavityContainerV3(
     var velocityX by remember { mutableStateOf(0f) }
     var velocityY by remember { mutableStateOf(0f) }
 
-    val scaleFac by remember { mutableStateOf(scaleFactor) }
+    val scaleFac by remember { mutableStateOf(scaleFactor) } // AJOUTÉ
 
     // État fixe du Cube 1 (Parent) quand il est verrouillé
     val parentFixedRotationX = remember { mutableStateOf(0f) }
@@ -119,10 +90,6 @@ fun CubeCavityContainerV3(
     val rotState2 = remember { RotationState() }
     val rotState3 = remember { RotationState() }
 
-    // === Fonction helper pour appliquer l'inversion ===
-    fun applyInversion(value: Float, invert: Boolean): Float {
-        return if (invert) -value else value
-    }
 
     Box(
         modifier = modifier
@@ -145,7 +112,7 @@ fun CubeCavityContainerV3(
     ) {
         Canvas(modifier = Modifier.size(size.dp)) {
             val center = Offset(this.size.width / 2f, this.size.height / 2f)
-            val scale = min(this.size.width, this.size.height) * scaleFac
+            val scale = min(this.size.width, this.size.height) * scaleFac // UTILISATION DE scaleFac
 
             val cubeSize = 1f
             // Définition des 8 sommets de base du cube
@@ -174,8 +141,7 @@ fun CubeCavityContainerV3(
                 colors: List<Color>,
                 alpha: Float,
                 rotX: Float,
-                rotY: Float,
-                showEdges: Boolean
+                rotY: Float
             ) {
                 val rotated = vertices.map { it.rotateX(rotX).rotateY(rotY) }
 
@@ -217,13 +183,9 @@ fun CubeCavityContainerV3(
                         alpha = alpha
                     )
 
-                    // Dessin de la face
+                    // Dessin de la face et du contour
                     drawPath(path, shadedColor)
-
-                    // Dessin du contour (arêtes) si activé
-                    if (showEdges) {
-                        drawPath(path, Color.Black.copy(alpha = 0.2f), style = Stroke(1.5f))
-                    }
+                    drawPath(path, Color.Black.copy(alpha = 0.2f), style = Stroke(1.5f))
                 }
             }
 
@@ -240,29 +202,26 @@ fun CubeCavityContainerV3(
             }
             wasParentInteractive.value = isParentInteractive
 
-            // Détermine quelle rotation utiliser pour le dessin du Cube 1 avec inversion
-            val baseParentRotX = if (isParentInteractive) targetRotationX else parentFixedRotationX.value
-            val baseParentRotY = if (isParentInteractive) targetRotationY else parentFixedRotationY.value
-
-            val parentCubeRotationX = applyInversion(baseParentRotX, parentInvertRotationX)
-            val parentCubeRotationY = applyInversion(baseParentRotY, parentInvertRotationY)
+            // Détermine quelle rotation utiliser pour le dessin du Cube 1
+            val parentCubeRotationX = if (isParentInteractive) targetRotationX else parentFixedRotationX.value
+            val parentCubeRotationY = if (isParentInteractive) targetRotationY else parentFixedRotationY.value
 
             // --- Logique de Suivi des Cubes Intérieurs (Mise à jour des états) ---
 
             // 2. Cube Intérieur 1 (Cube 2)
-            if (innerRatio1 > 0f && isInner1Interactive && isInner1Enabled) {
+            if (innerRatio1 > 0f && isInner1Interactive) {
                 rotState1.rotX += (targetRotationX - rotState1.rotX) * innerLagFactor1
                 rotState1.rotY += (targetRotationY - rotState1.rotY) * innerLagFactor1
             }
 
             // 3. Cube Intérieur 2 (Cube 3)
-            if (innerRatio2 > 0f && isInner2Interactive && isInner2Enabled) {
+            if (innerRatio2 > 0f && isInner2Interactive) {
                 rotState2.rotX += (targetRotationX - rotState2.rotX) * innerLagFactor2
                 rotState2.rotY += (targetRotationY - rotState2.rotY) * innerLagFactor2
             }
 
             // 4. Cube Intérieur 3 (Cube 4)
-            if (innerRatio3 > 0f && isInner3Interactive && isInner3Enabled) {
+            if (innerRatio3 > 0f && isInner3Interactive) {
                 rotState3.rotX += (targetRotationX - rotState3.rotX) * innerLagFactor3
                 rotState3.rotY += (targetRotationY - rotState3.rotY) * innerLagFactor3
             }
@@ -272,52 +231,42 @@ fun CubeCavityContainerV3(
             // ===============================================
 
             // 1. Dessin du cube intérieur 3 (Cube 4 - Le plus petit, le plus profond)
-            if (innerRatio3 > 0f && isInner3Enabled) {
+            if (innerRatio3 > 0f) {
                 drawCube(
                     baseVertices.map { it * innerRatio3 },
                     innerColors3,
                     innerAlpha3,
-                    applyInversion(rotState3.rotX, inner3InvertRotationX),
-                    applyInversion(rotState3.rotY, inner3InvertRotationY),
-                    showInner3Edges
+                    rotState3.rotX,
+                    rotState3.rotY
                 )
             }
 
             // 2. Dessin du cube intérieur 2 (Cube 3)
-            if (innerRatio2 > 0f && isInner2Enabled) {
+            if (innerRatio2 > 0f) {
                 drawCube(
                     baseVertices.map { it * innerRatio2 },
                     innerColors2,
                     innerAlpha2,
-                    applyInversion(rotState2.rotX, inner2InvertRotationX),
-                    applyInversion(rotState2.rotY, inner2InvertRotationY),
-                    showInner2Edges
+                    rotState2.rotX,
+                    rotState2.rotY
                 )
             }
 
             // 3. Dessin du cube intérieur 1 (Cube 2)
-            if (innerRatio1 > 0f && isInner1Enabled) {
+            if (innerRatio1 > 0f) {
                 drawCube(
                     baseVertices.map { it * innerRatio1 },
                     innerColors1,
                     innerAlpha1,
-                    applyInversion(rotState1.rotX, inner1InvertRotationX),
-                    applyInversion(rotState1.rotY, inner1InvertRotationY),
-                    showInner1Edges
+                    rotState1.rotX,
+                    rotState1.rotY
                 )
             }
 
             // 4. Dessin du cube parent (Cube 1 - Le plus grand, le plus proche)
-            if (isParentEnabled) {
-                drawCube(
-                    baseVertices,
-                    parentColors,
-                    parentAlpha,
-                    parentCubeRotationX,
-                    parentCubeRotationY,
-                    showParentEdges
-                )
-            }
+            drawCube(baseVertices, parentColors, parentAlpha, parentCubeRotationX, parentCubeRotationY)
         }
     }
 }
+
+
