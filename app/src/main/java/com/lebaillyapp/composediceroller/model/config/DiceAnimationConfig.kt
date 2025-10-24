@@ -16,7 +16,8 @@ data class DiceAnimationConfig(
     val targetValue: Int = 0,
     val rollingDuration: Long = 1500L,
     val rollingRotationsX: Float = 3.0f,
-    val rollingRotationsY: Float = 4.0f
+    val rollingRotationsY: Float = 4.0f,
+    val diceTicker: Int = 0
 ) {
     init {
         require(targetValue in 0..6) {
@@ -53,13 +54,15 @@ data class DiceAnimationConfig(
             targetValue: Int,
             rotationsX: Float = 3.0f,
             rotationsY: Float = 4.0f,
-            rollingDuration: Long = 1500L
+            rollingDuration: Long = 1500L,
+            diceTicker: Int = 0
         ) = DiceAnimationConfig(
             currentState = DiceState.ROLLING,
             targetValue = targetValue,
             rollingDuration = rollingDuration,
             rollingRotationsX = rotationsX,
-            rollingRotationsY = rotationsY
+            rollingRotationsY = rotationsY,
+            diceTicker = diceTicker
         )
     }
 }
