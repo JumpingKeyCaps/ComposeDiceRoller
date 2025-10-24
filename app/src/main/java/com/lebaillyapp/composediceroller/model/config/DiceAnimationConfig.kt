@@ -1,4 +1,4 @@
-package com.lebaillyapp.composediceroller.model
+package com.lebaillyapp.composediceroller.model.config
 
 import com.lebaillyapp.composediceroller.model.state.DiceState
 

@@ -1,6 +1,8 @@
-package com.lebaillyapp.composediceroller.model
+package com.lebaillyapp.composediceroller.model.config
 
 import androidx.compose.ui.graphics.Color
+import com.lebaillyapp.composediceroller.model.Pip
+import com.lebaillyapp.composediceroller.model.Vec3
 
 data class CubeConfig(
     val vertices: List<Vec3>,

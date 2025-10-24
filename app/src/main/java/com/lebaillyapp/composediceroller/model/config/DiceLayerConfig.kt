@@ -1,6 +1,4 @@
-package com.lebaillyapp.composediceroller.model
-
-import androidx.compose.ui.graphics.Color
+package com.lebaillyapp.composediceroller.model.config
 
 /**
  * Configuration d'une couche de dé dans un système de dés imbriqués.

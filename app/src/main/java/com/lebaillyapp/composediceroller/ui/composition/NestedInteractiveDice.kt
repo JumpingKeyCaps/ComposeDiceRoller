@@ -17,10 +17,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import com.lebaillyapp.composediceroller.model.DiceAnimationConfig
-import com.lebaillyapp.composediceroller.model.DiceLayerConfig
+import com.lebaillyapp.composediceroller.model.config.DiceAnimationConfig
+import com.lebaillyapp.composediceroller.model.config.DiceLayerConfig
 import com.lebaillyapp.composediceroller.model.state.DiceState
-import com.lebaillyapp.composediceroller.model.FaceConfig
+import com.lebaillyapp.composediceroller.model.config.FaceConfig
 import com.lebaillyapp.composediceroller.model.state.LayerLockState
 import com.lebaillyapp.composediceroller.model.state.RotationState
 import com.lebaillyapp.composediceroller.model.Vec3
@@ -537,7 +537,7 @@ fun NestedInteractiveDiceOLD(
 
             // === Dessin ===
             data class FaceWithLayer(
-                val face: com.lebaillyapp.composediceroller.model.FaceConfig,
+                val face: FaceConfig,
                 val fv: List<Vec3>,
                 val avgZ: Double,
                 val layer: DiceLayerConfig
