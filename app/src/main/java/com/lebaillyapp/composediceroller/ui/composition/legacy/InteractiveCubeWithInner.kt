@@ -1,4 +1,4 @@
-package com.lebaillyapp.composediceroller.ui.composition
+package com.lebaillyapp.composediceroller.ui.composition.legacy
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -24,14 +24,12 @@ import kotlin.math.min
 
 
 @Composable
-fun InteractiveCubeWith3NestedLag(
+fun InteractiveCubeWithInner(
     modifier: Modifier = Modifier,
     size: Float = 300f,
     damping: Float = 0.99f,
     dragFactor: Float = 0.004f,
-    innerCubeRatio1: Float = 0.90f,  // cube 2
-    innerCubeRatio2: Float = 0.3f,   // cube 3
-    innerLagFactor: Float = 0.2f,    // vitesse de rattrapage du cube 3 (0 = super lent, 1 = collé)
+    innerCubeRatio: Float = 0.95f, // ratio de taille du cube interne [0..1]
     parentColors: List<Color> = listOf(
         Color(0xFFE74C3C),
         Color(0xFF3498DB),
@@ -40,11 +38,9 @@ fun InteractiveCubeWith3NestedLag(
         Color(0xFF9B59B6),
         Color(0xFF1ABC9C)
     ),
-    parentAlpha: Float = 0.3f,
-    innerColors1: List<Color>? = null,
-    innerAlpha1: Float = 0.5f,
-    innerColors2: List<Color>? = null,
-    innerAlpha2: Float = 0.7f
+    parentAlpha: Float = 0.35f, // transparence cube parent
+    innerColors: List<Color>? = null, // si null, prend les mêmes que parent
+    innerAlpha: Float = 0.8f // transparence cube interne
 ) {
     var rotationX by remember { mutableStateOf(0f) }
     var rotationY by remember { mutableStateOf(0f) }
@@ -52,14 +48,9 @@ fun InteractiveCubeWith3NestedLag(
     var velocityX by remember { mutableStateOf(0f) }
     var velocityY by remember { mutableStateOf(0f) }
 
-    // rotation “lag” du cube 3
-    var innerRotationX by remember { mutableStateOf(0f) }
-    var innerRotationY by remember { mutableStateOf(0f) }
-
     var pointerPos by remember { mutableStateOf(Offset.Zero) }
 
-    val innerCubeColors1 = innerColors1 ?: parentColors
-    val innerCubeColors2 = innerColors2 ?: parentColors
+    val innerCubeColors = innerColors ?: parentColors
 
     Box(
         modifier = modifier
@@ -88,7 +79,7 @@ fun InteractiveCubeWith3NestedLag(
             val scale = min(this.size.width, this.size.height) * 0.2f
 
             val cubeSize = 1f
-            val baseVertices = listOf(
+            val vertices = listOf(
                 Vec3(-cubeSize, -cubeSize, -cubeSize),
                 Vec3(cubeSize, -cubeSize, -cubeSize),
                 Vec3(cubeSize, cubeSize, -cubeSize),
@@ -99,8 +90,7 @@ fun InteractiveCubeWith3NestedLag(
                 Vec3(-cubeSize, cubeSize, cubeSize)
             )
 
-            val innerVertices1 = baseVertices.map { it * innerCubeRatio1 }
-            val innerVertices2 = baseVertices.map { it * innerCubeRatio2 }
+            val innerVertices = vertices.map { it * innerCubeRatio }
 
             val faces = listOf(
                 listOf(0, 1, 2, 3),
@@ -112,9 +102,10 @@ fun InteractiveCubeWith3NestedLag(
             )
 
             val light = Vec3(0.5f, 0.7f, -1f).normalize()
+            val cameraDir = Vec3(0f, 0f, -1f)
 
-            fun drawCube(vertices: List<Vec3>, colors: List<Color>, alpha: Float, rotX: Float, rotY: Float) {
-                val rotated = vertices.map { it.rotateX(rotX).rotateY(rotY) }
+            fun drawCube(vertices: List<Vec3>, colors: List<Color>, alpha: Float) {
+                val rotated = vertices.map { it.rotateX(rotationX).rotateY(rotationY) }
 
                 val facesWithDepth = faces.mapIndexed { i, indices ->
                     val fv = indices.map { rotated[it] }
@@ -139,7 +130,7 @@ fun InteractiveCubeWith3NestedLag(
                         close()
                     }
 
-                    val brightness = max(0.3f, normal.dot(light).coerceIn(0f,1f))
+                    val brightness = max(0.6f, normal.dot(light).coerceIn(0f,1f))
                     val shadedColor = color.copy(
                         red = color.red * brightness,
                         green = color.green * brightness,
@@ -153,21 +144,12 @@ fun InteractiveCubeWith3NestedLag(
             }
 
             // draw parent cube
-            drawCube(baseVertices, parentColors, parentAlpha, rotationX, rotationY)
+            drawCube(vertices, parentColors, parentAlpha)
 
-            // draw inner cube 1
-            if (innerCubeRatio1 > 0f)
-                drawCube(innerVertices1, innerCubeColors1, innerAlpha1, rotationX, rotationY)
+            // draw inner cube
+            if (innerCubeRatio > 0f) drawCube(innerVertices, innerCubeColors, innerAlpha)
 
-            // draw inner cube 2 (lag inertiel)
-            if (innerCubeRatio2 > 0f) {
-                // interpolation rotation cube 3 vers rotation parent
-                innerRotationX += (rotationX - innerRotationX) * innerLagFactor
-                innerRotationY += (rotationY - innerRotationY) * innerLagFactor
-                drawCube(innerVertices2, innerCubeColors2, innerAlpha2, innerRotationX, innerRotationY)
-            }
-
-            // inertia parent
+            // inertia
             rotationX += velocityY
             rotationY += velocityX
             velocityX *= damping

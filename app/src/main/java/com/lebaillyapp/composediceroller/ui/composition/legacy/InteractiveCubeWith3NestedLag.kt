@@ -1,4 +1,4 @@
-package com.lebaillyapp.composediceroller.ui.composition
+package com.lebaillyapp.composediceroller.ui.composition.legacy
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -22,14 +22,16 @@ import com.lebaillyapp.composediceroller.model.Vec3
 import kotlin.math.max
 import kotlin.math.min
 
+
 @Composable
-fun InteractiveCubeWith3Nested(
+fun InteractiveCubeWith3NestedLag(
     modifier: Modifier = Modifier,
     size: Float = 300f,
     damping: Float = 0.99f,
     dragFactor: Float = 0.004f,
-    innerCubeRatio1: Float = 0.95f,  // ratio cube 2
-    innerCubeRatio2: Float = 0.4f,  // ratio cube 3 à l'intérieur du cube 2
+    innerCubeRatio1: Float = 0.90f,  // cube 2
+    innerCubeRatio2: Float = 0.3f,   // cube 3
+    innerLagFactor: Float = 0.2f,    // vitesse de rattrapage du cube 3 (0 = super lent, 1 = collé)
     parentColors: List<Color> = listOf(
         Color(0xFFE74C3C),
         Color(0xFF3498DB),
@@ -38,17 +40,21 @@ fun InteractiveCubeWith3Nested(
         Color(0xFF9B59B6),
         Color(0xFF1ABC9C)
     ),
-    parentAlpha: Float = 0.55f,
-    innerColors1: List<Color>? = null, // cube 2
-    innerAlpha1: Float = 0.8f,
-    innerColors2: List<Color>? = null, // cube 3
-    innerAlpha2: Float = 0.9f
+    parentAlpha: Float = 0.3f,
+    innerColors1: List<Color>? = null,
+    innerAlpha1: Float = 0.5f,
+    innerColors2: List<Color>? = null,
+    innerAlpha2: Float = 0.7f
 ) {
     var rotationX by remember { mutableStateOf(0f) }
     var rotationY by remember { mutableStateOf(0f) }
 
     var velocityX by remember { mutableStateOf(0f) }
     var velocityY by remember { mutableStateOf(0f) }
+
+    // rotation “lag” du cube 3
+    var innerRotationX by remember { mutableStateOf(0f) }
+    var innerRotationY by remember { mutableStateOf(0f) }
 
     var pointerPos by remember { mutableStateOf(Offset.Zero) }
 
@@ -107,8 +113,8 @@ fun InteractiveCubeWith3Nested(
 
             val light = Vec3(0.5f, 0.7f, -1f).normalize()
 
-            fun drawCube(vertices: List<Vec3>, colors: List<Color>, alpha: Float) {
-                val rotated = vertices.map { it.rotateX(rotationX).rotateY(rotationY) }
+            fun drawCube(vertices: List<Vec3>, colors: List<Color>, alpha: Float, rotX: Float, rotY: Float) {
+                val rotated = vertices.map { it.rotateX(rotX).rotateY(rotY) }
 
                 val facesWithDepth = faces.mapIndexed { i, indices ->
                     val fv = indices.map { rotated[it] }
@@ -146,16 +152,22 @@ fun InteractiveCubeWith3Nested(
                 }
             }
 
-            // parent cube
-            drawCube(baseVertices, parentColors, parentAlpha)
+            // draw parent cube
+            drawCube(baseVertices, parentColors, parentAlpha, rotationX, rotationY)
 
-            // inner cube 1
-            if (innerCubeRatio1 > 0f) drawCube(innerVertices1, innerCubeColors1, innerAlpha1)
+            // draw inner cube 1
+            if (innerCubeRatio1 > 0f)
+                drawCube(innerVertices1, innerCubeColors1, innerAlpha1, rotationX, rotationY)
 
-            // inner cube 2
-            if (innerCubeRatio2 > 0f) drawCube(innerVertices2, innerCubeColors2, innerAlpha2)
+            // draw inner cube 2 (lag inertiel)
+            if (innerCubeRatio2 > 0f) {
+                // interpolation rotation cube 3 vers rotation parent
+                innerRotationX += (rotationX - innerRotationX) * innerLagFactor
+                innerRotationY += (rotationY - innerRotationY) * innerLagFactor
+                drawCube(innerVertices2, innerCubeColors2, innerAlpha2, innerRotationX, innerRotationY)
+            }
 
-            // inertia
+            // inertia parent
             rotationX += velocityY
             rotationY += velocityX
             velocityX *= damping
