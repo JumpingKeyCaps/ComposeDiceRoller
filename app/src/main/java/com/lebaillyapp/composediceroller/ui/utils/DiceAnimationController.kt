@@ -49,8 +49,8 @@ class DiceAnimationController {
      * @param progress Avancement de 0f à 1f dans le roll
      */
     fun getRollingDamping(progress: Float): Float {
-        // entre 0.99 (début) et 0.90 (fin)
-        return 0.99f - (0.09f * progress.coerceIn(0f, 1f))
+        //return 0.99f - (0.09f * progress.coerceIn(0f, 1f))
+        return if (progress > 0.7f) 0.92f else 0.98f
     }
 
     /**
