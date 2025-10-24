@@ -19,10 +19,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.lebaillyapp.composediceroller.model.DiceAnimationConfig
 import com.lebaillyapp.composediceroller.model.DiceLayerConfig
-import com.lebaillyapp.composediceroller.model.DiceState
+import com.lebaillyapp.composediceroller.model.state.DiceState
 import com.lebaillyapp.composediceroller.model.FaceConfig
-import com.lebaillyapp.composediceroller.model.LayerLockState
-import com.lebaillyapp.composediceroller.model.RotationState
+import com.lebaillyapp.composediceroller.model.state.LayerLockState
+import com.lebaillyapp.composediceroller.model.state.RotationState
 import com.lebaillyapp.composediceroller.model.Vec3
 import com.lebaillyapp.composediceroller.ui.utils.DiceAnimationController
 import kotlinx.coroutines.delay

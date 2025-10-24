@@ -1,8 +1,7 @@
 package com.lebaillyapp.composediceroller.ui.utils
 
-import com.lebaillyapp.composediceroller.model.DiceState
+import com.lebaillyapp.composediceroller.model.state.DiceState
 import kotlin.math.PI
-import kotlin.random.Random
 
 /**
  * Contrôleur d'animation pour un dé.

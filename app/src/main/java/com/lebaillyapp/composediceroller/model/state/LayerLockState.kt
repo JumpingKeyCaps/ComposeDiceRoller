@@ -1,4 +1,4 @@
-package com.lebaillyapp.composediceroller.model
+package com.lebaillyapp.composediceroller.model.state
 
 /**
  * État de verrouillage d'une couche de dé.
