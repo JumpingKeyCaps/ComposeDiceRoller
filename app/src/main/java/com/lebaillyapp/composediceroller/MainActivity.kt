@@ -303,9 +303,9 @@ fun TestCube2(numberOfDice: Int = 6) {
                     diceAnimConfigs = diceValues.map { value ->
                         DiceAnimationConfig.rollTo(
                             targetValue = value,
-                            rotationsX = 20f,
-                            rotationsY = 20f,
-                            rollingDuration = 5000L,
+                            rotationsX = 10f,
+                            rotationsY = 10f,
+                            rollingDuration = 4000L,
                             diceTicker = turnCounter
                         )
                     }
