@@ -12,7 +12,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.dp
-import com.lebaillyapp.composediceroller.model.Vec3
+import com.lebaillyapp.composediceroller.model.dice.Vec3
 import kotlin.math.min
 
 @Composable

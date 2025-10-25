@@ -1,4 +1,4 @@
-package com.lebaillyapp.composediceroller.model.config
+package com.lebaillyapp.composediceroller.model.dice.config
 
 /**
  * Configuration d'une couche de dé dans un système de dés imbriqués.

@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -40,12 +39,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import com.lebaillyapp.composediceroller.model.config.CubeConfig
-import com.lebaillyapp.composediceroller.model.config.DiceAnimationConfig
-import com.lebaillyapp.composediceroller.model.config.DiceLayerConfig
-import com.lebaillyapp.composediceroller.model.state.LayerLockState
-import com.lebaillyapp.composediceroller.model.config.createUniformDice
-import com.lebaillyapp.composediceroller.model.config.createUniformGhost
+import com.lebaillyapp.composediceroller.model.dice.config.CubeConfig
+import com.lebaillyapp.composediceroller.model.dice.config.DiceAnimationConfig
+import com.lebaillyapp.composediceroller.model.dice.config.DiceLayerConfig
+import com.lebaillyapp.composediceroller.model.dice.state.LayerLockState
+import com.lebaillyapp.composediceroller.model.dice.config.createUniformDice
+import com.lebaillyapp.composediceroller.model.dice.config.createUniformGhost
 import com.lebaillyapp.composediceroller.ui.composition.NeonCirclesRefined
 import com.lebaillyapp.composediceroller.ui.composition.legacy.InteractiveCube
 import com.lebaillyapp.composediceroller.ui.composition.legacy.InteractiveCubeV2

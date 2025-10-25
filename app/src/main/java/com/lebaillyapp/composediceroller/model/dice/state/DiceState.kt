@@ -1,4 +1,4 @@
-package com.lebaillyapp.composediceroller.model.state
+package com.lebaillyapp.composediceroller.model.dice.state
 
 /**
  * États possibles d'animation d'un dé.

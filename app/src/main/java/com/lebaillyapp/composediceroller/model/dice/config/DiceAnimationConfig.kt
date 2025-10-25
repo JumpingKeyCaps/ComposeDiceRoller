@@ -1,6 +1,6 @@
-package com.lebaillyapp.composediceroller.model.config
+package com.lebaillyapp.composediceroller.model.dice.config
 
-import com.lebaillyapp.composediceroller.model.state.DiceState
+import com.lebaillyapp.composediceroller.model.dice.state.DiceState
 
 /**
  * Configuration de l'animation d'un dé.

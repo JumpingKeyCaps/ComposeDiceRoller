@@ -1,6 +1,6 @@
 package com.lebaillyapp.composediceroller.ui.utils
 
-import com.lebaillyapp.composediceroller.model.state.DiceState
+import com.lebaillyapp.composediceroller.model.dice.state.DiceState
 import kotlin.math.PI
 
 /**

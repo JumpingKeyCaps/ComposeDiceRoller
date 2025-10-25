@@ -1,4 +1,4 @@
-package com.lebaillyapp.composediceroller.model.state
+package com.lebaillyapp.composediceroller.model.dice.state
 
 // Classe interne pour gérer l'état de rotation actuel d'un cube
 class RotationState(

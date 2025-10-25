@@ -1,7 +1,7 @@
-package com.lebaillyapp.composediceroller.model.config
+package com.lebaillyapp.composediceroller.model.dice.config
 
 import androidx.compose.ui.graphics.Color
-import com.lebaillyapp.composediceroller.model.Pip
+import com.lebaillyapp.composediceroller.model.dice.Pip
 
 data class FaceConfig(
     val indices: List<Int>,
