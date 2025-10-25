@@ -1,4 +1,4 @@
-package com.lebaillyapp.composediceroller.ui.composition.legacy
+package com.lebaillyapp.composediceroller.ui.composition.dice.legacy
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures

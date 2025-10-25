@@ -1,4 +1,4 @@
-package com.lebaillyapp.composediceroller.ui.composition.legacy
+package com.lebaillyapp.composediceroller.ui.composition.dice.legacy
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -20,13 +20,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.lebaillyapp.composediceroller.model.dice.Vec3
-import com.lebaillyapp.composediceroller.model.dice.normalizeOrZero
-import kotlin.math.max
 import kotlin.math.min
 
 
 @Composable
-fun InteractiveCubeV4(
+fun InteractiveCubeV2(
     modifier: Modifier = Modifier,
     size: Float = 300f
 ) {
@@ -36,29 +34,27 @@ fun InteractiveCubeV4(
     var velocityX by remember { mutableStateOf(0f) }
     var velocityY by remember { mutableStateOf(0f) }
 
-    var pointerPos by remember { mutableStateOf(Offset.Zero) }
-
-    val damping = 0.92f
+    val damping = 0.92f // freinage progressif plus visible
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectDragGestures(
-                    onDragStart = { offset ->
+                    onDragStart = {
                         velocityX = 0f
                         velocityY = 0f
-                        pointerPos = offset
                     },
-                    onDragEnd = {},
-                    onDrag = { change, dragAmount ->
+                    onDragEnd = {
+                        // inertie continue via Canvas update
+                    },
+                    onDrag = { _, dragAmount ->
                         val (dx, dy) = dragAmount
-                        val factor = 0.004f
+                        val factor = 0.004f // moins sensible
                         rotationY -= dx * factor
                         rotationX += dy * factor
                         velocityX = -dx * factor
                         velocityY = dy * factor
-                        pointerPos = change.position
                     }
                 )
             },
@@ -92,7 +88,6 @@ fun InteractiveCubeV4(
             )
 
             val light = Vec3(0.5f, 0.7f, -1f).normalize()
-            val cameraDir = Vec3(0f, 0f, -1f) // direction de vue fixe
 
             val facesWithDepth = faces.map { (indices, color) ->
                 val fv = indices.map { rotated[it] }
@@ -119,26 +114,13 @@ fun InteractiveCubeV4(
                     close()
                 }
 
-                // Fresnel effect : plus le angle normal->camera est grand, plus c'est brillant
-                val dotView = max(0f, normal.dot(cameraDir))
-                val fresnel = 0.2f + 0.8f * (1f - dotView) // 0.2 au centre, 1 aux bords
-
-                // reflection selon position du doigt
-                val reflectDir = (pointerPos - center).normalizeOrZero()
-                val reflectBrightness = 0.5f + 0.5f * max(0f, normal.dot(
-                    Vec3(
-                        reflectDir.x,
-                        -reflectDir.y,
-                        -0.5f
-                    ).normalize()))
-
-                val brightness = (normal.dot(light).coerceIn(0f,1f) * 0.6f + 0.4f) * reflectBrightness * fresnel
-
+                // glass/metal effect: gradient plus subtil
+                val brightness = (normal.dot(light).coerceIn(0f, 1f) * 0.6f + 0.4f)
                 val shadedColor = color.copy(
                     red = (color.red * brightness).coerceIn(0f,1f),
                     green = (color.green * brightness).coerceIn(0f,1f),
                     blue = (color.blue * brightness).coerceIn(0f,1f),
-                    alpha = 0.95f
+                    alpha = 0.9f
                 )
 
                 val gradient = Brush.linearGradient(
@@ -148,7 +130,7 @@ fun InteractiveCubeV4(
                 )
 
                 drawPath(path, gradient)
-                drawPath(path, Color.Black.copy(alpha = 0.2f), style = Stroke(1.5f))
+                drawPath(path, Color.Black.copy(alpha = 0.25f), style = Stroke(1.5f))
             }
 
             // Apply inertia

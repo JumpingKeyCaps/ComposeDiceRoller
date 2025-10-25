@@ -1,4 +1,4 @@
-package com.lebaillyapp.composediceroller.ui.composition
+package com.lebaillyapp.composediceroller.ui.composition.dice
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearOutSlowInEasing
