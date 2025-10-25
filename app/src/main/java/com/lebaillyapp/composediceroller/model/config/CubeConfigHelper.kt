@@ -56,12 +56,12 @@ fun CubeConfig.Companion.createUniformGhost(value: Int): CubeConfig {
  */
 private fun getColorForValue(value: Int): Color {
     return when(value) {
-        1 -> Color(0xFFE74C3C)  // Rouge
-        2 -> Color(0xFF3498DB)  // Bleu
-        3 -> Color(0xFF2ECC71)  // Vert
-        4 -> Color(0xFFF39C12)  // Orange
-        5 -> Color(0xFF9B59B6)  // Violet
-        6 -> Color(0xFF1ABC9C)  // Turquoise
+        1 -> Color(0xFFF50057)  // Rouge
+        2 -> Color(0xFF006EF5)  // Bleu
+        3 -> Color(0xFF00F5F5)  // Vert
+        4 -> Color(0xFFF59B00)  // Orange
+        5 -> Color(0xFF00F5A7)  // rose
+        6 -> Color(0xFF8300F5)  // violet
         else -> Color.White
     }
 }

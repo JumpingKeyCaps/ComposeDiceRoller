@@ -28,13 +28,17 @@ data class CubeConfig(
                 )
             }else{
                 colors = listOf(
-                    Color(0xFFE74C3C),
-                    Color(0xFF3498DB),
-                    Color(0xFF2ECC71),
-                    Color(0xFFF39C12),
-                    Color(0xFF9B59B6),
-                    Color(0xFF1ABC9C)
+                    Color(0xFFF50057),
+                    Color(0xFF006EF5),
+                    Color(0xFF00F5F5),
+                    Color(0xFFF59B00),
+                    Color(0xFF00F5A7),
+                    Color(0xFF8300F5)
                 )
+
+
+
+
             }
 
 
@@ -59,11 +63,11 @@ data class CubeConfig(
 
             val faces = listOf(
                 FaceConfig(listOf(0, 3, 2, 1), colors[0], dicePips[0]),  // Face 1 (rouge)
-                FaceConfig(listOf(4, 5, 6, 7), colors[1], dicePips[5]),  // Face 6 (bleu)
-                FaceConfig(listOf(0, 1, 5, 4), colors[2], dicePips[1]),  // Face 2 (vert)
-                FaceConfig(listOf(2, 3, 7, 6), colors[3], dicePips[4]),  // Face 5 (jaune)
-                FaceConfig(listOf(0, 4, 7, 3), colors[4], dicePips[2]),  // Face 3 (violet)
-                FaceConfig(listOf(1, 2, 6, 5), colors[5], dicePips[3])   // Face 4 (turquoise)
+                FaceConfig(listOf(4, 5, 6, 7), colors[5], dicePips[5]),  // Face 6 (violet)
+                FaceConfig(listOf(0, 1, 5, 4), colors[1], dicePips[1]),  // Face 2 (bleu)
+                FaceConfig(listOf(2, 3, 7, 6), colors[4], dicePips[4]),  // Face 5 (vert)
+                FaceConfig(listOf(0, 4, 7, 3), colors[2], dicePips[2]),  // Face 3 (lime)
+                FaceConfig(listOf(1, 2, 6, 5), colors[3], dicePips[3])   // Face 4 (orange)
             )
 
             return CubeConfig(vertices, faces)
