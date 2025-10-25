@@ -56,8 +56,8 @@ import com.lebaillyapp.composediceroller.ui.composition.dice.legacy.InteractiveC
 import com.lebaillyapp.composediceroller.ui.composition.dice.legacy.InteractiveCubeWithInner
 import com.lebaillyapp.composediceroller.ui.composition.dice.legacy.InteractiveDiceComposable
 import com.lebaillyapp.composediceroller.ui.composition.dice.NestedInteractiveDice
-import com.lebaillyapp.composediceroller.ui.containeur.legacy.CubeCavityContainerV2
-import com.lebaillyapp.composediceroller.ui.containeur.legacy.CubeCavityContainerV3
+import com.lebaillyapp.composediceroller.ui.composition.dice.legacy.CubeCavityContainerV2
+import com.lebaillyapp.composediceroller.ui.composition.dice.legacy.CubeCavityContainerV3
 import com.lebaillyapp.composediceroller.ui.theme.ComposeDiceRollerTheme
 import kotlin.math.hypot
 import kotlin.random.Random
