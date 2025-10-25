@@ -39,12 +39,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.lebaillyapp.composediceroller.model.dice.config.CubeConfig
 import com.lebaillyapp.composediceroller.model.dice.config.DiceAnimationConfig
 import com.lebaillyapp.composediceroller.model.dice.config.DiceLayerConfig
 import com.lebaillyapp.composediceroller.model.dice.state.LayerLockState
 import com.lebaillyapp.composediceroller.model.dice.config.createUniformDice
 import com.lebaillyapp.composediceroller.model.dice.config.createUniformGhost
+import com.lebaillyapp.composediceroller.model.score.DiceScoreResult
+import com.lebaillyapp.composediceroller.model.score.DiceScorer
 import com.lebaillyapp.composediceroller.ui.composition.NeonCirclesRefined
 import com.lebaillyapp.composediceroller.ui.composition.dice.legacy.InteractiveCube
 import com.lebaillyapp.composediceroller.ui.composition.dice.legacy.InteractiveCubeV2
@@ -283,6 +286,10 @@ fun TestCube2(numberOfDice: Int = 6) {
     var diceValues by remember { mutableStateOf(List(numberOfDice) { 0 }) }
     var turnCounter by remember { mutableStateOf(0) }
 
+    val scorer = remember { DiceScorer() }
+    var lastScoreResult by remember { mutableStateOf<DiceScoreResult?>(null) }
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -312,6 +319,30 @@ fun TestCube2(numberOfDice: Int = 6) {
         }
 
 
+        // --- Affichage du score et des combinaisons ---
+        lastScoreResult?.let { result ->
+            Column(
+                modifier = Modifier.padding(top = 26.dp).align(Alignment.TopCenter),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Score: ${result.totalScore}" + if (result.isFanny) " (Fanny!)" else "",
+                    color = Color.White
+                )
+                if (result.combinations.isNotEmpty()) {
+                    result.combinations.forEach { combo ->
+                        Text(
+                            text = "${combo.type}: ${combo.diceUsed.joinToString(", ")} → ${combo.score}",
+                            color = Color.LightGray,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+        }
+
+
+
         // Bouton pour lancer les dés
         Button(
             onClick = {
@@ -328,6 +359,11 @@ fun TestCube2(numberOfDice: Int = 6) {
                         diceTicker = turnCounter
                     )
                 }
+
+                // --- Calcul du score à chaque lancer ---
+                lastScoreResult = scorer.evaluate(diceValues)
+
+
             },
             modifier = Modifier.padding(25.dp).height(54.dp).align(Alignment.BottomCenter),
             colors = ButtonDefaults.buttonColors(Color(0x77000000))
