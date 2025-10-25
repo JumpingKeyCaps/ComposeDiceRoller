@@ -16,12 +16,14 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -287,60 +289,54 @@ fun TestCube2(numberOfDice: Int = 6) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
+        // Affichage des dés en 2 colonnes
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth().align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Bouton pour lancer les dés
-            Button(
-                onClick = {
-                    turnCounter++
-
-                    diceValues = List(numberOfDice) { Random.nextInt(1, 7) }
-
-                    diceAnimConfigs = diceValues.map { value ->
-                        DiceAnimationConfig.rollTo(
-                            targetValue = value,
-                            rotationsX = 10f,
-                            rotationsY = 10f,
-                            rollingDuration = 4000L,
-                            diceTicker = turnCounter
+            diceValues.chunked(2).forEach { rowDice ->
+                Row(
+                    modifier = Modifier.padding(vertical = 0.dp),
+                    horizontalArrangement = Arrangement.spacedBy(0.dp)
+                ) {
+                    rowDice.forEachIndexed { indexInRow, value ->
+                        val globalIndex = diceValues.indexOf(value) +
+                                diceValues.subList(0, diceValues.indexOf(value)).count { it == value }
+                        DiceItem(
+                            value = value,
+                            animationConfig = diceAnimConfigs[globalIndex],
+                            diceSize = 100f
                         )
-                    }
-                },
-                modifier = Modifier.padding(5.dp)
-            ) {
-                val currentValues = if (diceValues.all { it == 0 }) "Classic" else diceValues.joinToString(", ")
-                Text("Roll Dice! (Currently: $currentValues)")
-            }
-
-            Spacer(modifier = Modifier.height(50.dp))
-
-            // Affichage des dés en 2 colonnes
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                diceValues.chunked(2).forEach { rowDice ->
-                    Row(
-                        modifier = Modifier.padding(vertical = 0.dp),
-                        horizontalArrangement = Arrangement.spacedBy(0.dp)
-                    ) {
-                        rowDice.forEachIndexed { indexInRow, value ->
-                            val globalIndex = diceValues.indexOf(value) +
-                                    diceValues.subList(0, diceValues.indexOf(value)).count { it == value }
-                            DiceItem(
-                                value = value,
-                                animationConfig = diceAnimConfigs[globalIndex],
-                                diceSize = 100f
-                            )
-                        }
                     }
                 }
             }
         }
+
+
+        // Bouton pour lancer les dés
+        Button(
+            onClick = {
+                turnCounter++
+
+                diceValues = List(numberOfDice) { Random.nextInt(1, 7) }
+
+                diceAnimConfigs = diceValues.map { value ->
+                    DiceAnimationConfig.rollTo(
+                        targetValue = value,
+                        rotationsX = 10f,
+                        rotationsY = 10f,
+                        rollingDuration = 4000L,
+                        diceTicker = turnCounter
+                    )
+                }
+            },
+            modifier = Modifier.padding(25.dp).height(54.dp).align(Alignment.BottomCenter),
+            colors = ButtonDefaults.buttonColors(Color(0x77000000))
+        ) {
+            val currentValues = if (diceValues.all { it == 0 }) "Classic" else diceValues.joinToString(", ")
+            Text("Roll Dice! (Currently: $currentValues)", color = Color.White)
+        }
+
     }
 }
 
