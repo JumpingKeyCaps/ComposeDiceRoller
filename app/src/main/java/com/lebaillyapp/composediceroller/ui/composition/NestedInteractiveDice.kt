@@ -391,7 +391,7 @@ fun NestedInteractiveDice(
                         val vVec = fv[3] - fv[0]
                         val pipCenter3D = fv[0] + uVec * u + vVec * v
 
-                        val steps = 8
+                        val steps = 16
                         val pipPoints = (0 until steps).map { i ->
                             val angle = i / steps.toFloat() * 2 * PI.toFloat()
                             val dx = cos(angle) * pipRadius
