@@ -406,32 +406,19 @@ fun TestCubeHex(numberOfDice: Int = 6, middleRowSpacing: Dp = 120.dp) {
             rows.forEachIndexed { rowIndex, rowDice ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = if (rowIndex == 1) Arrangement.Center else Arrangement.Center
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    if (rowIndex == 1) {
-                        // Rangée du milieu avec espace custom
-                        DiceItem(
-                            value = rowDice[0],
-                            animationConfig = diceAnimConfigs[0],
-                            diceSize = 100f
-                        )
-                        Spacer(modifier = Modifier.width(middleRowSpacing))
-                        DiceItem(
-                            value = rowDice[1],
-                            animationConfig = diceAnimConfigs[1],
-                            diceSize = 100f
-                        )
-                    } else {
-                        // Rangées du haut et bas : dés centrés
-                        rowDice.forEachIndexed { indexInRow, value ->
-                            val globalIndex = diceValues.indexOf(value) +
-                                    diceValues.subList(0, diceValues.indexOf(value)).count { it == value }
-                            DiceItem(
-                                value = value,
-                                animationConfig = diceAnimConfigs[globalIndex],
-                                diceSize = 100f
-                            )
+                    rowDice.forEachIndexed { indexInRow, value ->
+                        val globalIndex = rowIndex * 2 + indexInRow
+                        if (rowIndex == 1 && indexInRow == 1) {
+                            Spacer(modifier = Modifier.width(middleRowSpacing))
                         }
+
+                        DiceItem(
+                            value = value,
+                            animationConfig = diceAnimConfigs[globalIndex],
+                            diceSize = 100f
+                        )
                     }
                 }
             }
@@ -464,7 +451,7 @@ fun TestCubeHex(numberOfDice: Int = 6, middleRowSpacing: Dp = 120.dp) {
             onClick = {
                 turnCounter++
                 diceValues = List(numberOfDice) { Random.nextInt(1, 7) }
-                diceAnimConfigs = diceValues.map { value ->
+                diceAnimConfigs = diceValues.mapIndexed { i, value ->
                     DiceAnimationConfig.rollTo(
                         targetValue = value,
                         rotationsX = 10f,
@@ -481,7 +468,6 @@ fun TestCubeHex(numberOfDice: Int = 6, middleRowSpacing: Dp = 120.dp) {
             val currentValues = if (diceValues.all { it == 0 }) "Classic" else diceValues.joinToString(", ")
             Text("Roll Dice! (Currently: $currentValues)", color = Color.White)
         }
-
     }
 }
 
