@@ -16,10 +16,10 @@ class DiceAnimationController {
     fun applyIdleRotation(
         currentRotX: Float,
         currentRotY: Float,
-        deltaTime: Float = 0.032f // 0.016f for 60fps
+        deltaTime: Float = 0.008f
     ): Pair<Float, Float> {
-        val idleSpeedX = 0.3f * deltaTime
-        val idleSpeedY = 0.5f * deltaTime
+        val idleSpeedX = 0.1f * deltaTime
+        val idleSpeedY = 0.1f * deltaTime
         return (currentRotX + idleSpeedX) to (currentRotY + idleSpeedY)
     }
 
@@ -35,7 +35,7 @@ class DiceAnimationController {
         val targetRadiansX = rotationsX * 2f * PI.toFloat()
         val targetRadiansY = rotationsY * 2f * PI.toFloat()
 
-        val frames = (durationMs / 1000f) * 30f //30fps par défaut , to be replaced by 60
+        val frames = (durationMs / 1000f) * 30f
         val velocityX = targetRadiansX / frames
         val velocityY = targetRadiansY / frames
 
