@@ -82,11 +82,16 @@ class MainActivity : ComponentActivity() {
                         color = MaterialTheme.colorScheme.background
                     ) {
                        // CubeGallery()
-                         //  TestCube2()
+                           TestCube2(numberOfDice = 1, cubeSize = 200f)
 
-                        TestCubeHex()
+                      //  TestCubeHex()
 
-                       // TestSingleCube()
+
+
+
+
+
+                     //   TestSingleCube()
 
                        // NeonCirclesScreen()
 
@@ -286,7 +291,7 @@ fun TestCube(numberOfDice: Int = 5) {
 }
 
 @Composable
-fun TestCube2(numberOfDice: Int = 6) {
+fun TestCube2(numberOfDice: Int = 6,cubeSize: Float = 100f) {
     var diceAnimConfigs by remember { mutableStateOf(List(numberOfDice) { DiceAnimationConfig.idle(0) }) }
     var diceValues by remember { mutableStateOf(List(numberOfDice) { 0 }) }
     var turnCounter by remember { mutableStateOf(0) }
@@ -316,7 +321,7 @@ fun TestCube2(numberOfDice: Int = 6) {
                         DiceItem(
                             value = value,
                             animationConfig = diceAnimConfigs[globalIndex],
-                            diceSize = 100f
+                            diceSize = cubeSize
                         )
                     }
                 }
