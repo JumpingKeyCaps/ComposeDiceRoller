@@ -1,6 +1,9 @@
 # Compose Dice Roller – CPU Pseudo-3D Playground
 
-![Kotlin](https://img.shields.io/badge/Kotlin-1.9-orange) ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-UI-blue) 
+![Kotlin](https://img.shields.io/badge/Kotlin-1.9-orange)
+![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-UI-blue) 
+
+
 A Kotlin CPU-only pseudo-3D playground exploring 3D math, projections, and interaction, culminating in a touch-driven dice prototype.
 
 > **Not a rendering engine, physics simulator, or production library.**  
