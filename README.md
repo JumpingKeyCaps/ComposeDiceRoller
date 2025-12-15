@@ -1,4 +1,4 @@
-# Compose Dice Roller – CPU Pseudo-3D Playground
+# Compose Dice Roller – Pseudo-3D Playground
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-1.9-orange)
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-UI-blue) 
@@ -41,6 +41,18 @@ The dice acts as a concrete object to anchor experiments, prioritizing clarity o
 - Clear separation: configuration, state, math, rendering  
 
 ---
+
+## Screenshots
+
+| InteractiveCubeV2 | InteractiveCubeWith3Nested | InteractiveCubeWith3NestedShiny | 
+|:---:|:---:|:---:|
+| ![P1](screenshots/demo1.gif) | ![P2](screenshots/demo2.gif) |  ![P3](screenshots/demo3.gif) |
+| CubeCavityContainerV3 | NestedInteractiveDice | TestCubeHex | 
+| ![P4](screenshots/demo4.gif) | ![P5](screenshots/demo5.gif) |  ![P6](screenshots/demo6.gif) |
+
+
+---
+
 
 ## Core Model
 
