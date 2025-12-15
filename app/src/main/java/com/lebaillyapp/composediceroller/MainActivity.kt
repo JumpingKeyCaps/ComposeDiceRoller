@@ -3,7 +3,6 @@ package com.lebaillyapp.composediceroller
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -42,6 +41,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat.enableEdgeToEdge
 import com.lebaillyapp.composediceroller.model.dice.config.CubeConfig
 import com.lebaillyapp.composediceroller.model.dice.config.DiceAnimationConfig
 import com.lebaillyapp.composediceroller.model.dice.config.DiceLayerConfig
@@ -70,7 +70,6 @@ import kotlin.random.Random
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             ComposeDiceRollerTheme {
 
@@ -81,17 +80,12 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize().padding(it),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                       // CubeGallery()
-                           TestCube2(numberOfDice = 1, cubeSize = 200f)
+                        CubeGallery()
+                        //   TestCube2(numberOfDice = 1, cubeSize = 200f)
 
-                      //  TestCubeHex()
+                       // TestCubeHex()
 
-
-
-
-
-
-                     //   TestSingleCube()
+                       // TestSingleCube()
 
                        // NeonCirclesScreen()
 
@@ -387,7 +381,7 @@ fun TestCube2(numberOfDice: Int = 6,cubeSize: Float = 100f) {
 
 
 @Composable
-fun TestCubeHex(numberOfDice: Int = 6, middleRowSpacing: Dp = 120.dp) {
+fun TestCubeHex(numberOfDice: Int = 6, middleRowSpacing: Dp = 100.dp) {
     var diceAnimConfigs by remember { mutableStateOf(List(numberOfDice) { DiceAnimationConfig.idle(0) }) }
     var diceValues by remember { mutableStateOf(List(numberOfDice) { 0 }) }
     var turnCounter by remember { mutableStateOf(0) }
