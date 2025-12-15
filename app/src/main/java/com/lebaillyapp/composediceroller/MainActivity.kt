@@ -82,12 +82,9 @@ class MainActivity : ComponentActivity() {
                     ) {
                         CubeGallery()
                         //   TestCube2(numberOfDice = 1, cubeSize = 200f)
-
                        // TestCubeHex()
-
-                       // TestSingleCube()
-
-                       // NeonCirclesScreen()
+                      //  TestSingleCube()
+                     // NeonCirclesScreen()
 
 
                     }
@@ -181,6 +178,9 @@ fun TestSingleCube() {
                     LayerLockState.unlocked()   // Cube 2 : libre
                 )
             )
+
+
+
         }
 
 
